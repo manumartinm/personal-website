@@ -1,42 +1,39 @@
-# Portfolio Blog Starter
+# Manuel Martín Morante — Work & writing
 
-This is a porfolio site template complete with a blog. Includes:
+A monochrome portfolio and MDX publication built with Next.js, React, and Tailwind. The homepage includes a lazy-loaded Three.js trefoil knot; article routes never load the scene.
 
-- MDX and Markdown support
-- Optimized for SEO (sitemap, robots, JSON-LD schema)
-- RSS Feed
-- Dynamic OG images
-- Syntax highlighting
-- Tailwind v4
-- Vercel Speed Insights / Web Analytics
-- Geist font
+## Development
 
-## Demo
-
-https://portfolio-blog-starter.vercel.app
-
-## How to Use
-
-You can choose from one of the following two methods to use this repository:
-
-### One-Click Deploy
-
-Deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=vercel-examples):
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vercel/examples/tree/main/solutions/blog&project-name=blog&repository-name=blog)
-
-### Clone and Deploy
-
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [pnpm](https://pnpm.io/installation) to bootstrap the example:
-
-```bash
-pnpm create next-app --example https://github.com/vercel/examples/tree/main/solutions/blog blog
-```
-
-Then, run Next.js in development mode:
-
-```bash
+```sh
+pnpm install
 pnpm dev
 ```
 
-Deploy it to the cloud with [Vercel](https://vercel.com/templates) ([Documentation](https://nextjs.org/docs/app/building-your-application/deploying)).
+Validate with `pnpm exec tsc --noEmit` and `pnpm build`. Serve the production build with `pnpm start`.
+
+## Writing
+
+Posts live in `app/blog/posts/*.mdx`. Keep existing filenames to preserve their public URLs. Required frontmatter:
+
+```yaml
+---
+title: "Post title"
+publishedAt: "2026-10-09"
+summary: "A short description."
+category: "technical"
+---
+```
+
+Use `technical` for technical writing or `essay` for personal essays. Both categories appear at `/blog`; links with `?category=technical` or `?category=essay` are shareable. Unknown filters show all writing. The homepage automatically displays the newest two posts per category. Keep each article in its original language.
+
+LaTeX, GFM tables, code highlighting, and RSS are supported. All interface colors and code tokens are grayscale.
+
+## Sculpture
+
+Motion pauses when offscreen, when the tab is hidden, or via the Pause button. Reduced-motion preferences disable animation. A static SVG is shown while loading and if WebGL is unavailable. Regenerate the fallback after changing its geometry with `node scripts/generate-sculpture.mjs`.
+
+## Publishing
+
+Production is https://personal-web-ten-blue.vercel.app. Vercel deploys the GitHub repository’s `main` branch automatically. The production URL in `app/sitemap.ts` also controls RSS and social metadata.
+
+Experience is maintained in `app/data/experience.ts` from career details supplied by Manuel. All eight roles have explicit start and end dates; the March 2026 MIT hackathon recognition is separate from the October–November 2025 research appointment.

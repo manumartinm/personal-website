@@ -1,72 +1,30 @@
-function ArrowIcon() {
-  return (
-    <svg
-      width="12"
-      height="12"
-      viewBox="0 0 12 12"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
+import { Arrow } from './arrow'
+import { PixelField } from './pixel-field'
+
+const links = [
+  ['GitHub', 'https://github.com/manumartinm'],
+  ['LinkedIn', 'https://www.linkedin.com/in/manumartinmorante/'],
+  ['X / Twitter', 'https://x.com/manu__martinm'],
+]
 
 export default function Footer() {
   return (
-    <footer className="mb-16">
-      <ul className="font-sm mt-8 flex flex-col space-x-0 space-y-2 text-neutral-600 md:flex-row md:space-x-4 md:space-y-0">
-        <li>
-          <a
-            className="flex items-center transition-all hover:text-neutral-800"
-            rel="noopener noreferrer"
-            target="_blank"
-            href="https://github.com/manumartinm"
-          >
-            <ArrowIcon />
-            <p className="ml-2 h-7">GitHub</p>
-          </a>
-        </li>
-        <li>
-          <a
-            className="flex items-center transition-all hover:text-neutral-800"
-            rel="noopener noreferrer"
-            target="_blank"
-            href="https://www.linkedin.com/in/manumartinmorante/"
-          >
-            <ArrowIcon />
-            <p className="ml-2 h-7">LinkedIn</p>
-          </a>
-        </li>
-        <li>
-          <a
-            className="flex items-center transition-all hover:text-neutral-800"
-            rel="noopener noreferrer"
-            target="_blank"
-            href="https://x.com/manu__martinm"
-          >
-            <ArrowIcon />
-            <p className="ml-2 h-7">Twitter</p>
-          </a>
-        </li>
-        <li>
-          <a
-            className="flex items-center transition-all hover:text-neutral-800"
-            rel="noopener noreferrer"
-            target="_blank"
-            href="mailto:manuelmartinmtech@gmail.com"
-          >
-            <ArrowIcon />
-            <p className="ml-2 h-7">Email</p>
-          </a>
-        </li>
-      </ul>
-      <p className="mt-8 text-neutral-600">
-        © {new Date().getFullYear()} MIT Licensed
-      </p>
+    <footer className="site-footer">
+      <section className="closing" aria-labelledby="closing-title">
+        <PixelField className="pixel-field-closing" />
+        <p className="closing-eyebrow reveal">Keep the conversation going</p>
+        <h2 id="closing-title" className="reveal">Have a good question?</h2>
+        <p className="closing-text reveal">Peptides, databases, mathematics, or a life decision. I’m always happy to think out loud with someone.</p>
+        <div className="closing-links reveal">
+          <a className="closing-primary" href="mailto:manuelmartinmtech@gmail.com">Get in touch</a>
+          <a className="closing-secondary" href="https://www.linkedin.com/in/manumartinmorante/" target="_blank" rel="noopener noreferrer">LinkedIn <Arrow /></a>
+        </div>
+      </section>
+      <div className="footer-bottom">
+        <p>© {new Date().getFullYear()} Manuel Martín Morante</p>
+        <div className="social-links">{links.map(([label, href]) => <a key={label} href={href} target="_blank" rel="noopener noreferrer">{label} <Arrow /></a>)}<a href="/rss">RSS <Arrow /></a></div>
+        <a className="back-to-top" href="#top">Back to top ↑</a>
+      </div>
     </footer>
-  );
+  )
 }

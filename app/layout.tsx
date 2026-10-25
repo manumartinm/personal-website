@@ -7,15 +7,24 @@ import { Navbar } from "./components/nav";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import Footer from "./components/footer";
+import { RevealObserver, ScrollProgress } from "./components/motion";
 import { baseUrl } from "./sitemap";
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: "Manuel Blog",
-    template: "%s | Manuel Blog",
+    default: "Manuel Martín Morante — Engineer & Researcher",
+    template: "%s | Manuel Martín Morante",
   },
-  description: "This is my blog.",
+  description: "Software engineering, scientific computing, and a curiosity for mathematics and philosophy. Work and writing by Manuel Martín Morante.",
+  openGraph: {
+    title: "Manuel Martín Morante — Engineer & Researcher",
+    description: "Building things. Questioning everything. Work and writing on computing, mathematics, and life.",
+    images: [{ url: "/og" }],
+    type: "website",
+  },
+  twitter: { card: "summary_large_image" },
+  alternates: { types: { "application/rss+xml": "/rss" } },
   robots: {
     index: true,
     follow: true,
@@ -40,19 +49,22 @@ export default function RootLayout({
     <html
       lang="en"
       className={cx(
-        "text-neutral-900 bg-[#fbf4e6]",
         GeistSans.variable,
         GeistMono.variable
       )}
     >
-      <body className="antialiased max-w-3xl mx-2 mt-8 lg:mx-auto">
-        <main className="flex-auto min-w-0 mt-6 flex flex-col px-0">
+      <body id="top">
+        <ScrollProgress />
+        <div className="backdrop" aria-hidden="true"><span /><span /><span /></div>
+        <a className="skip-link" href="#main-content">Skip to content</a>
+        <div className="site-shell">
           <Navbar />
-          {children}
+          <main id="main-content" className="page-enter" tabIndex={-1}>{children}</main>
           <Footer />
-          <Analytics />
-          <SpeedInsights />
-        </main>
+        </div>
+        <RevealObserver />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

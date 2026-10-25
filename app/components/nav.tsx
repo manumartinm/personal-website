@@ -1,37 +1,49 @@
-import Link from "next/link";
+'use client'
 
-const navItems = {
-  "/": {
-    name: "home",
-  },
-  "/blog": {
-    name: "blog",
-  },
-};
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
+import { Arrow } from './arrow'
+
+const links = [
+  { href: '/', label: 'Home', active: (p: string) => p === '/' },
+  { href: '/#work', label: 'Work' },
+  { href: '/#interests', label: 'Interests' },
+  { href: '/blog', label: 'Writing', active: (p: string) => p.startsWith('/blog') },
+]
 
 export function Navbar() {
+  const pathname = usePathname()
+  const [open, setOpen] = useState(false)
+  const menu = useRef<HTMLDivElement>(null)
+
+  useEffect(() => setOpen(false), [pathname])
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false)
+    const onClick = (e: MouseEvent) => !menu.current?.contains(e.target as Node) && setOpen(false)
+    document.addEventListener('keydown', onKey)
+    document.addEventListener('click', onClick)
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.removeEventListener('click', onClick)
+    }
+  }, [open])
+
   return (
-    <aside className="-ml-[8px] mb-16 tracking-tight">
-      <div className="lg:sticky lg:top-20">
-        <nav
-          className="flex flex-row items-start relative px-0 pb-0 fade md:overflow-auto scroll-pr-6 md:relative"
-          id="nav"
-        >
-          <div className="flex flex-row space-x-0 pr-10">
-            {Object.entries(navItems).map(([path, { name }]) => {
-              return (
-                <Link
-                  key={path}
-                  href={path}
-                  className="transition-all hover:text-neutral-800 flex align-middle relative py-1 px-2 m-1"
-                >
-                  {name}
-                </Link>
-              );
-            })}
-          </div>
-        </nav>
+    <header className="site-header">
+      <Link className="wordmark pill-glass" href="/" aria-label="Manuel Martín Morante — home">mm<span>.</span></Link>
+      <nav className="pill-glass nav-desktop" aria-label="Main navigation">
+        {links.map((l) => <Link key={l.href} href={l.href} aria-current={l.active?.(pathname) ? 'page' : undefined}>{l.label}</Link>)}
+      </nav>
+      <a className="header-contact pill-dark" href="mailto:manuelmartinmtech@gmail.com">Let’s talk <Arrow /></a>
+      <div className="nav-mobile" ref={menu}>
+        <button className="pill-dark" aria-expanded={open} aria-controls="mobile-menu" onClick={() => setOpen((o) => !o)}>{open ? 'Close' : 'Menu'}</button>
+        <div id="mobile-menu" className="mobile-menu" data-open={open || undefined}>
+          {links.map((l) => <Link key={l.href} href={l.href} onClick={() => setOpen(false)} aria-current={l.active?.(pathname) ? 'page' : undefined}>{l.label}</Link>)}
+          <a className="mobile-menu-cta" href="mailto:manuelmartinmtech@gmail.com">Let’s talk</a>
+        </div>
       </div>
-    </aside>
-  );
+    </header>
+  )
 }

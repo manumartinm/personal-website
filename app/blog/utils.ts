@@ -1,28 +1,40 @@
 import fs from 'fs'
 import path from 'path'
 
+export type PostCategory = 'technical' | 'essay'
+export const categoryLabels: Record<PostCategory, string> = { technical: 'Technical', essay: 'Essay' }
+
+export function isPostCategory(value: unknown): value is PostCategory {
+  return value === 'technical' || value === 'essay'
+}
+
 type Metadata = {
   title: string
   publishedAt: string
   summary: string
+  category: PostCategory
   image?: string
 }
 
 function parseFrontmatter(fileContent: string) {
   let frontmatterRegex = /---\s*([\s\S]*?)\s*---/
   let match = frontmatterRegex.exec(fileContent)
-  let frontMatterBlock = match![1]
+  if (!match) throw new Error('Post is missing frontmatter')
+  let frontMatterBlock = match[1]
   let content = fileContent.replace(frontmatterRegex, '').trim()
   let frontMatterLines = frontMatterBlock.trim().split('\n')
-  let metadata: Partial<Metadata> = {}
+  let metadata: Record<string, string> = {}
 
   frontMatterLines.forEach((line) => {
     let [key, ...valueArr] = line.split(': ')
     let value = valueArr.join(': ').trim()
     value = value.replace(/^['"](.*)['"]$/, '$1') // Remove quotes
-    metadata[key.trim() as keyof Metadata] = value
+    metadata[key.trim()] = value
   })
 
+  if (!isPostCategory(metadata.category)) {
+    throw new Error(`Post "${metadata.title}" needs category: "technical" or "essay"`)
+  }
   return { metadata: metadata as Metadata, content }
 }
 
@@ -56,13 +68,15 @@ function getMDXData(dir) {
 }
 
 export function getBlogPosts() {
-  return getMDXData(path.join(process.cwd(), 'app', 'blog', 'posts'))
+  return getMDXData(path.join(process.cwd(), 'app', 'blog', 'posts')).sort(
+    (a, b) => b.metadata.publishedAt.localeCompare(a.metadata.publishedAt) || a.slug.localeCompare(b.slug)
+  )
 }
 
 export function formatDate(date: string, includeRelative = false) {
   let currentDate = new Date()
   if (!date.includes('T')) {
-    date = `${date}T00:00:00`
+    date = `${date}T00:00:00Z`
   }
   let targetDate = new Date(date)
 
@@ -83,6 +97,7 @@ export function formatDate(date: string, includeRelative = false) {
   }
 
   let fullDate = targetDate.toLocaleString('en-us', {
+    timeZone: 'UTC',
     month: 'long',
     day: 'numeric',
     year: 'numeric',
@@ -93,4 +108,13 @@ export function formatDate(date: string, includeRelative = false) {
   }
 
   return `${fullDate} (${formattedDate})`
+}
+
+export function readingTime(content: string) {
+  const words = content
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/\$\$[\s\S]*?\$\$/g, ' ')
+    .split(/\s+/)
+    .filter(Boolean).length
+  return Math.max(1, Math.round(words / 220))
 }

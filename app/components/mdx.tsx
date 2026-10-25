@@ -11,7 +11,9 @@ function extractPlainText(node: React.ReactNode): string {
   if (node == null || typeof node === "boolean") return "";
   if (typeof node === "string" || typeof node === "number") return String(node);
   if (Array.isArray(node)) return node.map(extractPlainText).join("");
-  // Ignore non-text React elements (e.g. <code/>, <em/>) when generating slugs.
+  if (React.isValidElement<{ children?: React.ReactNode }>(node)) {
+    return extractPlainText(node.props.children);
+  }
   return "";
 }
 
@@ -99,6 +101,7 @@ function createHeading(level) {
           href: `#${slug}`,
           key: `link-${slug}`,
           className: "anchor",
+          "aria-label": `Link to ${extractPlainText(children)}`,
         }),
       ],
       children

@@ -1,10 +1,6 @@
+import Link from 'next/link'
+import { Arrow } from './components/arrow'
+
 export default function NotFound() {
-  return (
-    <section>
-      <h1 className="mb-8 text-2xl font-semibold tracking-tighter">
-        404 - Page Not Found
-      </h1>
-      <p className="mb-4">The page you are looking for does not exist.</p>
-    </section>
-  )
+  return <section className="not-found"><p className="eyebrow">404 / A loose end</p><h1>Nothing here. Yet.</h1><p>The page you’re looking for doesn’t exist.</p><Link className="text-link" href="/"><Arrow direction="left" /> Back home</Link></section>
 }

@@ -1,9 +1,10 @@
+import Link from "next/link";
+import { Arrow } from "app/components/arrow";
 import { notFound } from "next/navigation";
 import { CustomMDX } from "app/components/mdx";
-import { formatDate, getBlogPosts } from "app/blog/utils";
+import { categoryLabels, formatDate, getBlogPosts, readingTime } from "app/blog/utils";
+import { ArticleToc, type TocItem } from "app/components/toc";
 import { baseUrl } from "app/sitemap";
-
-type TocItem = { level: 2 | 3 | 4; text: string; slug: string };
 
 function slugify(str: string) {
   return str
@@ -104,16 +105,21 @@ export default async function Blog({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  let post = getBlogPosts().find((post) => post.slug === slug);
+  const posts = getBlogPosts();
+  const index = posts.findIndex((post) => post.slug === slug);
+  const post = posts[index];
 
   if (!post) {
     notFound();
   }
+  // posts are sorted newest first
+  const newer = posts[index - 1];
+  const older = posts[index + 1];
 
   const toc = getTableOfContents(post.content);
 
   return (
-    <section>
+    <section className={toc.length > 0 ? "article-page has-toc" : "article-page"}>
       <script
         type="application/ld+json"
         suppressHydrationWarning
@@ -127,45 +133,38 @@ export default async function Blog({
             description: post.metadata.summary,
             image: post.metadata.image
               ? `${baseUrl}${post.metadata.image}`
-              : `/og?title=${encodeURIComponent(post.metadata.title)}`,
+              : `${baseUrl}/og?title=${encodeURIComponent(post.metadata.title)}`,
             url: `${baseUrl}/blog/${post.slug}`,
             author: {
               "@type": "Person",
-              name: "My Portfolio",
+              name: "Manuel Martín Morante",
             },
           }),
         }}
       />
-      <h1 className="title font-semibold text-2xl tracking-tighter">
-        {post.metadata.title}
-      </h1>
+      <Link href="/blog" className="article-back text-link"><Arrow direction="left" /> All writing</Link>
+      <header className="article-header">
+        <Link className="eyebrow article-category" href={`/blog?category=${post.metadata.category}`}>{categoryLabels[post.metadata.category]}</Link>
+        <h1>{post.metadata.title}</h1>
+        <p className="article-summary">{post.metadata.summary}</p>
+        <div className="article-meta"><span>Manuel Martín Morante</span><span aria-hidden="true">/</span><time dateTime={post.metadata.publishedAt}>{formatDate(post.metadata.publishedAt)}</time><span aria-hidden="true">/</span><span>{readingTime(post.content)} min read</span></div>
+      </header>
       {toc.length > 0 && (
-        <nav aria-label="Table of contents" className="mt-4 mb-8">
-          <p className="text-sm font-medium text-neutral-900">On this page</p>
-          <ul className="mt-2 space-y-1 text-sm text-neutral-700">
-            {toc.map((item) => (
-              <li
-                key={`${item.level}-${item.slug}`}
-                className={
-                  item.level === 2 ? "" : item.level === 3 ? "pl-4" : "pl-8"
-                }
-              >
-                <a className="hover:underline" href={`#${item.slug}`}>
-                  {item.text}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <details className="article-toc">
+          <summary>On this page</summary>
+          <nav aria-label="Table of contents"><ul>
+            {toc.map((item) => <li key={`${item.level}-${item.slug}`} className={`toc-level-${item.level}`}><a href={`#${item.slug}`}>{item.text}</a></li>)}
+          </ul></nav>
+        </details>
       )}
-      <div className="flex justify-between items-center mt-2 mb-8 text-sm">
-        <p className="text-sm text-neutral-600">
-          {formatDate(post.metadata.publishedAt)}
-        </p>
-      </div>
-      <article className="prose max-w-none prose-p:leading-7 prose-li:leading-7">
+      {toc.length > 0 && <aside className="article-aside"><ArticleToc items={toc} /></aside>}
+      <article className="prose">
         <CustomMDX source={post.content} />
       </article>
+      <nav className="article-pager" aria-label="More writing">
+        {older ? <Link className="pager-card" href={`/blog/${older.slug}`}><span>Previous</span><strong>{older.metadata.title}</strong></Link> : <span />}
+        {newer ? <Link className="pager-card pager-next" href={`/blog/${newer.slug}`}><span>Next</span><strong>{newer.metadata.title}</strong></Link> : <span />}
+      </nav>
     </section>
   );
 }

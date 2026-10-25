@@ -1,36 +1,17 @@
 import Link from 'next/link'
-import { formatDate, getBlogPosts } from 'app/blog/utils'
+import { categoryLabels, formatDate, getBlogPosts, readingTime, type PostCategory } from 'app/blog/utils'
+import { Arrow } from './arrow'
 
-export function BlogPosts() {
-  let allBlogs = getBlogPosts()
-
+export function BlogPosts({ category, limit, compact = false, preview = false }: { category?: PostCategory; limit?: number; compact?: boolean; preview?: boolean }) {
+  const posts = getBlogPosts().filter((post) => !category || post.metadata.category === category).slice(0, limit)
   return (
-    <div>
-      {allBlogs
-        .sort((a, b) => {
-          if (
-            new Date(a.metadata.publishedAt) > new Date(b.metadata.publishedAt)
-          ) {
-            return -1
-          }
-          return 1
-        })
-        .map((post) => (
-          <Link
-            key={post.slug}
-            className="flex flex-col space-y-1 mb-4"
-            href={`/blog/${post.slug}`}
-          >
-            <div className="w-full flex flex-col md:flex-row space-x-0 md:space-x-2">
-              <p className="text-neutral-600 w-[100px] tabular-nums">
-                {formatDate(post.metadata.publishedAt, false)}
-              </p>
-              <p className="text-neutral-900 tracking-tight">
-                {post.metadata.title}
-              </p>
-            </div>
-          </Link>
-        ))}
+    <div className={compact ? 'post-list post-list-compact' : 'post-list'}>
+      {posts.map((post) => (
+        <Link key={post.slug} className="post-link reveal" href={`/blog/${post.slug}`} data-preview={preview ? `Read · ${readingTime(post.content)} min` : undefined}>
+          <div className="post-meta"><span>{categoryLabels[post.metadata.category]}</span><time dateTime={post.metadata.publishedAt}>{formatDate(post.metadata.publishedAt)}</time>{!compact && <span className="post-reading">{readingTime(post.content)} min read</span>}</div>
+          <div className="post-copy"><h3>{post.metadata.title}</h3><p>{post.metadata.summary}</p></div><Arrow />
+        </Link>
+      ))}
     </div>
   )
 }
